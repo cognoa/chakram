@@ -94,7 +94,7 @@ describe("Methods", function() {
     });
 
   describe("request defaults", function () {
-      before(function () {
+      beforeEach(function () {
           chakram.setRequestDefaults({
               headers: {
                   Testing: 'default-option'
@@ -117,5 +117,29 @@ describe("Methods", function() {
               expect(resp.body.headers.Testing).to.be.undefined;
           });
       });
+
+      it("should allow adding defaults", function () {
+          chakram.addRequestDefaults({ headers: { Second: 'default-option' } });
+          return chakram.get("http://httpbin.org/get").then(function(resp) {
+              expect(resp.body.headers.Testing).to.equal('default-option');
+              expect(resp.body.headers.Second).to.equal('default-option');
+          });
+      });
+
+      it("should allow overriding defaults", function () {
+          chakram.addRequestDefaults({ headers: { Testing: 'override-option' } });
+          return chakram.get("http://httpbin.org/get").then(function(resp) {
+              expect(resp.body.headers.Testing).to.equal('override-option');
+          });
+      });
+
+      it("should allow adding defaults to empty defaults", function () {
+          chakram.clearRequestDefaults();
+          chakram.addRequestDefaults({ headers: { Second: 'default-option' } });
+          return chakram.get("http://httpbin.org/get").then(function(resp) {
+              expect(resp.body.headers.Testing).to.be.undefined;
+              expect(resp.body.headers.Second).to.equal('default-option');
+          });
+      })
   });
 });
